@@ -17,18 +17,41 @@ SubAlgoritmo mostrarDatos(consumo, dias Por Referencia)
 	Escribir "";
 FinSubAlgoritmo
 
+// Funcion para sumar la totalidad del consumo registrado
+Funcion suma <- sumaConsumo(consumo, dias)
+	Definir suma Como Real;
+	Definir i Como Entero;
+	suma <- 0;
+	Para i<-1 Hasta dias Con Paso 1 Hacer
+		suma <- suma + consumo[i];
+	FinPara
+FinFuncion
+
 Proceso Calculadora_Consumo_Energia
     // Definición de la matriz de consumo
-    Definir consumo, dias Como Entero;
+    Definir consumo, precioKw Como Real;
+	Definir dias Como Entero;
+	Definir llave Como Logico;
 	Dimension consumo[31];
-	Escribir "Ingrese la cantidad de días del mes: ";
-	Leer dias;
-
+		
+	llave <- Falso;
+	Repetir
+		Escribir "Ingrese la cantidad de días del mes (valor numérico): ";
+		Leer dias;
+		Si dias > 0 y dias <= 31 Entonces
+			llave <- Verdadero;
+		Sino 
+			Escribir "Valor ingresado incorrecto, ingrese un valor numerico entre 1 y 31";
+		FinSi
+	Hasta Que llave = Verdadero;
+	
+	Escribir "Ingrese el precio del KW: ";
+	Leer precioKw;
 	
 	RegistrarConsumoDiario(consumo, dias);
 	
 	mostrarDatos(consumo, dias);
 	
-	
+	Escribir "En precio del consumo de energía en el mes es de: $", sumaConsumo(consumo, dias) * precioKw;
 	
 FinProceso
