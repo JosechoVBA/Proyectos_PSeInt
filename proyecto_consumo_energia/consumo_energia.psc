@@ -1,57 +1,149 @@
-// Funci√≥n para registrar el consumo diario
-SubAlgoritmo  registrarConsumoDiario(consumo, dias Por Referencia)
-	Definir i Como Entero;
-	Para i <- 1 Hasta dias Hacer
-        Escribir "Ingrese el consumo del d√≠a ", i, " en kw: " Sin Saltar;
-        Leer consumo[i];
+// Funcion para solicitar al usuario que ingrese el aÒo sobre el que se va a realizar el c·lculo
+SubProceso pedirAnio(anio Por Referencia)
+	Definir llave Como Logico;
+	// Solicitamos al usuario ingrese el aÒo
+	llave <- Falso;
+	Repetir
+		Escribir 'Ingrese el aÒo sobre el cual desea calcular el consumo: ';
+		Leer anio;
+		Si (anio >= 1900) y (anio <= 2024) Entonces
+			llave <- Verdadero;
+		SiNo
+			Escribir "Valor ingresado incorrecto, escriba un aÒo v·lido (no ingrese espacios en blanco): ";
+		FinSi
+	Hasta Que llave = Verdadero;
+FinSubProceso
+
+// FunciÛn para establecer si el aÒo ingresado por el usuario es bisiesto o no. Conforme ello se asigna el valor al mes de febrero.
+Funcion diasFebrero <- calculoDiasFebrero(anio)
+	Definir diasFebrero Como Entero;
+	
+	diasFebrero <- 0; 
+	Si ((anio MOD 4=0) Y (anio MOD 100<>0) O anio MOD 400=0) Entonces
+		diasFebrero <- 29;
+	SiNo
+		diasFebrero <- 28;
+	FinSi
+FinFuncion
+
+// Funcion definir el mes sobre el que se har· el calculo
+SubProceso pedirMes(mes Por Referencia)
+	Definir llave Como Logico;
+	llave <- Falso;
+	Repetir
+		Escribir "Escriba el nombre del mes que desea calcular el consumo: ";
+		Leer mes;
+		mes <- Minusculas(mes);
+		Si (mes = "enero") o (mes = "febrero") o (mes = "marzo") o (mes = "abril") o (mes = "mayo") o (mes = "junio") o (mes = "julio") o (mes = "agosto") o (mes = "septiembre") o (mes = "octubre") o (mes = "noviembre") o (mes = "diciembre") Entonces
+			llave <- Verdadero;
+		SiNo
+			Escribir "Valor ingresado incorrecto, escriba el nombre del mes con caracteres (no ingrese espacios en blanco): ";
+		FinSi
+	Hasta Que llave = Verdadero;
+FinSubProceso
+
+// Funcion para asignar los dÌas al mes ingresado por el usuario
+Funcion dias <- calculoDias(mes,febrero)
+	Definir dias Como Entero;
+	
+	Si (mes = "enero") o (mes = "marzo") o (mes = "mayo") o  (mes = "julio") o (mes = "agosto") o (mes = "octubre") o (mes = "diciembre") Entonces
+		dias <- 31;
+	SiNo
+		Si (mes = "abril") o (mes = "junio") o (mes = "septiembre") o  (mes = "noviembre")  Entonces
+			dias <- 30;
+		SiNo
+			Si mes = "febrero" Entonces
+				dias <- febrero;
+			FinSi
+		FinSi 
+	FinSi
+FinFuncion
+
+// FunciÛn para registrar el consumo diario
+SubAlgoritmo  registrarConsumoDiario(consumo Por Referencia)
+	Escribir "Ingrese los KW consumidos en el mes a calcular";
+	Leer consumo;
+FinSubAlgoritmo
+
+// Creamos un calendario
+SubAlgoritmo crearCalendario(cantidadDias, calendario Por Referencia)
+	Definir i, j, contador Como Entero;
+	contador <- 1;
+	Para i <- 0 Hasta 5 Hacer
+		Para j <- 0 Hasta 5 Hacer
+			Si contador > cantidadDias Entonces
+				calendario[i,j] <- 0;
+			SiNo
+				calendario[i,j] <- contador;
+			FinSi
+			contador <- contador + 1;
+		FinPara
 	FinPara
 FinSubAlgoritmo
 
-// Funci√≥n para mostrar los datos cargados de consumo
-SubAlgoritmo mostrarDatos(consumo, dias Por Referencia)
-	Definir i Como Entero;
+
+
+// FunciÛn para mostrar los datos cargados de consumo
+SubAlgoritmo mostrarDatos(consumo, cantidadDias, precioKw, calendario, mes Por Referencia)
+	Definir i, j Como Entero;
+	Definir nombreMes Como Cadena;
+	
+	// Obtener el nombre del mes con la primera letra en may˙scula
+	nombreMes <- Concatenar(Mayusculas(Subcadena(mes, 0, 0)), Subcadena(mes, 1, Longitud(mes)-1));
+	
 	Escribir '';
-	Para i<-1 Hasta dias Con Paso 1 Hacer
-		Escribir "El consumo registrado en el dia ", i , " es: ", consumo[i];
+	Escribir '=================================';
+	Escribir "Consumo ", nombreMes, " 2023: $", (consumo * precioKw), Sin Saltar;
+	Escribir '';	
+	Escribir '=================================';
+	Escribir '';
+	
+	crearCalendario(cantidadDias, calendario);
+	Para i <- 0 Hasta 5 Hacer
+		Para j <- 0 Hasta 5 Hacer
+			si calendario[i,j] < 10 Entonces
+				Escribir Sin Saltar " ", calendario[i,j], " ";
+			SiNo
+				Escribir Sin Saltar calendario[i,j], " ";
+			FinSi
+		FinPara
+		Escribir "";
 	FinPara
 	Escribir "";
 FinSubAlgoritmo
 
-// Funcion para sumar la totalidad del consumo registrado
-Funcion suma <- sumaConsumo(consumo, dias)
-	Definir suma Como Real;
-	Definir i Como Entero;
-	suma <- 0;
-	Para i<-1 Hasta dias Con Paso 1 Hacer
-		suma <- suma + consumo[i];
-	FinPara
-FinFuncion
-
 Proceso Calculadora_Consumo_Energia
-    // Definici√≥n de la matriz de consumo
+    // DefiniciÛn las variables a emplear
     Definir consumo, precioKw Como Real;
-	Definir dias Como Entero;
+	Definir cantidadDias, anio, febrero, calendario Como Entero;
+	Definir mes Como Caracter;
 	Definir llave Como Logico;
-	Dimension consumo[31];
-		
-	llave <- Falso;
-	Repetir
-		Escribir "Ingrese la cantidad de d√≠as del mes (valor num√©rico): ";
-		Leer dias;
-		Si dias > 0 y dias <= 31 Entonces
-			llave <- Verdadero;
-		Sino 
-			Escribir "Valor ingresado incorrecto, ingrese un valor numerico entre 1 y 31";
-		FinSi
-	Hasta Que llave = Verdadero;
+	Dimension calendario[6,6];
 	
+	Escribir "********************************************************************************************************************************************************";
+	Escribir "Bienvenido! este es un programa que le permitir· calcuar el valor a pagar conforme el consumo de energÌa que ha tenido durante un mes y aÒo determiando.";
+	Escribir "********************************************************************************************************************************************************";
+	Escribir '';
+	
+	// Pedimos al usuario que ingrese el aÒo sobre el cual se quiere hacer el c·lculo.
+	pedirAnio(anio);
+	
+	// Determinamos si el aÒo ingresado es bisiesto o no
+	febrero <- calculoDiasFebrero(anio);
+	
+	// Pedimos al usuario que ingrese el nombre del mes a calcular
+	pedirMes(mes);
+	
+	// Vamos a calcular la cantida de dÌas que contiene el mes ingresado por el usuario
+	cantidadDias <- calculoDias(mes, febrero);
+	
+	// Pedimos al usuario que ingrese el precio del KW
 	Escribir "Ingrese el precio del KW: ";
 	Leer precioKw;
 	
-	RegistrarConsumoDiario(consumo, dias);
+	// Registramos el consumo con los datos que vaya ingresando el usuario
+	RegistrarConsumoDiario(consumo);
 	
-	mostrarDatos(consumo, dias);
-	
-	Escribir "En precio del consumo de energ√≠a en el mes es de: $", sumaConsumo(consumo, dias) * precioKw;
-	
+	// Mostramos datos de consumo por dÌa y el total a pagar
+	mostrarDatos(consumo, cantidadDias, precioKw, calendario, mes);
 FinProceso
